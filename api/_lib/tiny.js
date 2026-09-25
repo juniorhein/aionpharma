@@ -181,6 +181,11 @@ export function montarPedido({ cliente, itens, observacoes = '', situacao = 'abe
   // O valor vai no pedido para conciliar com a etiqueta gerada no Olist Envios.
   const valorFrete = frete && Number(frete.price) > 0 ? Number(frete.price) : 0;
   const servicoFrete = frete ? [frete.company, frete.name].filter(Boolean).join(' ') : '';
+  // Cotação veio do Olist Envios → o pedido tem que nascer NESSA logística
+  // ('OLIST' + nome da forma de frete como está no cadastro, ex. "Loggi - Expresso"),
+  // senão a Expedição imprime só a etiqueta interna do ERP, sem rastreio e sem
+  // postagem contratada — a transportadora não reconhece (Gustavo, 24/09/2026).
+  const olistEnvios = /olist envios/i.test(frete?.company || '');
   const obsFrete = servicoFrete ? `Frete escolhido: ${servicoFrete} (R$ ${valorFrete.toFixed(2)}).` : '';
   const pj = (cliente.tipoPessoa || 'F') === 'J';
 
@@ -198,8 +203,8 @@ export function montarPedido({ cliente, itens, observacoes = '', situacao = 'abe
     // `forma_envio` é CÓDIGO de uma letra, não texto livre: 'T' = transportadora.
     // Mandar o nome do serviço aqui fazia o Tiny gravar 'S' e a nota sair sem
     // transporte — o serviço vai em `forma_frete` e a empresa em `nome_transportador`.
-    forma_envio: frete ? 'T' : '',
-    forma_frete: servicoFrete.slice(0, 30),
+    forma_envio: olistEnvios ? 'OLIST' : frete ? 'T' : '',
+    forma_frete: (olistEnvios ? String(frete.name || '') : servicoFrete).slice(0, 30),
     nome_transportador: nomeTransportadora(frete),
     cliente: {
       nome: cliente.nome,

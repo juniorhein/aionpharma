@@ -982,7 +982,12 @@ async function calcularFrete() {
     if (!r.ok) throw new Error(data.detail || data.error || 'Falha na cotação');
 
     if (data.freteGratis) {
-      selectedFrete = { id: 'gratis', name: 'Frete grátis', company: '', price: 0, prazo: null };
+      // Grátis pro cliente, mas o pedido precisa levar uma logística real
+      // (a mais barata) — sem ela a Expedição não gera etiqueta de verdade.
+      const maisBarata = (data.opcoes || []).slice().sort((a, b) => a.price - b.price)[0];
+      selectedFrete = maisBarata
+        ? { ...maisBarata, price: 0 }
+        : { id: 'gratis', name: 'Frete grátis', company: '', price: 0, prazo: null };
       box.innerHTML = `<p class="frete-msg frete-ok">🎉 Você ganhou frete grátis!</p>`;
       renderCartUI();
       return;
