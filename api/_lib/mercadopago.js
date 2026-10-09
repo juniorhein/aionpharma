@@ -115,7 +115,7 @@ function enderecoPayer(cliente) {
  * @param {object} [opts.cliente]           dados completos do comprador (antifraude)
  * @returns {Promise<{ id, init_point, sandbox_init_point }>}
  */
-export async function criarPreferencia({ items, externalReference, shipmentCost = 0, cliente }) {
+export async function criarPreferencia({ items, externalReference, shipmentCost = 0, cliente, metadata }) {
   const siteUrl = (process.env.SITE_URL || '').replace(/\/$/, '');
   const { nome, sobrenome } = partirNome(cliente?.nome);
 
@@ -157,6 +157,9 @@ export async function criarPreferencia({ items, externalReference, shipmentCost 
       receiver_address: enderecoEntrega,
     },
     external_reference: externalReference,
+    // Volta no pagamento (payment.metadata) — o webhook usa pra ligar a
+    // venda à visita no GA4.
+    ...(metadata && Object.keys(metadata).length ? { metadata } : {}),
     payer,
     back_urls: {
       success: `${siteUrl}/pedido-confirmado?status=sucesso`,

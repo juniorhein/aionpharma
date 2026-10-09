@@ -112,6 +112,23 @@ function trackPurchase(ref) {
 }
 window.trackPurchase = trackPurchase;
 
+/**
+ * client_id e session_id do GA4, lidos dos cookies. Vão no checkout pro
+ * webhook registrar Pix/boleto ligados à mesma visita (e à origem dela).
+ */
+function gaIds() {
+  try {
+    const cookie = (n) => document.cookie.split('; ').find((c) => c.startsWith(`${n}=`))?.split('=')[1] || '';
+    const ga = cookie('_ga').split('.');                        // GA1.1.<rand>.<ts>
+    const clientId = ga.length >= 4 ? `${ga[2]}.${ga[3]}` : undefined;
+    const sess = cookie(`_ga_${GA4_ID.replace('G-', '')}`);     // GS1.1.<sid>.… ou GS2.1.s<sid>$…
+    const m = sess.match(/^GS1\.\d\.(\d+)/) || sess.match(/^GS2\.\d\.s(\d+)/);
+    return { clientId, sessionId: m ? m[1] : undefined };
+  } catch {
+    return {};
+  }
+}
+
 // Contato pelo WhatsApp em qualquer página
 document.addEventListener('click', (e) => {
   const a = e.target?.closest?.('a');
@@ -1244,6 +1261,7 @@ async function enviarCheckout(event) {
         itens: cart,
         frete: selectedFrete,
         cupom: b2bLogado() ? null : appliedCoupon?.codigo || null,
+        ga: gaIds(),
       }),
     });
     const data = await r.json();

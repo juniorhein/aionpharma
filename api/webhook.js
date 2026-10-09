@@ -12,6 +12,7 @@ import { obterPagamento } from './_lib/mercadopago.js';
 import { alterarSituacaoPedido, gerarNotaFiscal, obterPedido } from './_lib/tiny.js';
 import { confirmarResgatePorPedido } from './_lib/cupons.js';
 import { enviarAvisoLoja, enviarConfirmacaoCliente } from './_lib/email.js';
+import { enviarCompraGA4 } from './_lib/ga4.js';
 
 export default async function handler(req, res) {
   // Responda 200 rápido — o MP reenvia se não receber 200.
@@ -56,6 +57,14 @@ export default async function handler(req, res) {
         }
       } catch (mailErr) {
         console.error('[/api/webhook] e-mail:', mailErr.message);
+      }
+
+      // Venda no GA4 (cobre Pix/boleto, aprovados fora do site).
+      // Medição nunca derruba o webhook.
+      try {
+        await enviarCompraGA4(pagamento);
+      } catch (gaErr) {
+        console.error('[/api/webhook] GA4:', gaErr.message);
       }
 
       // Registra uso do cupom (idempotente por pedido_id)

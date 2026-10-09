@@ -33,6 +33,17 @@ async function readJson(req) {
   return raw ? JSON.parse(raw) : {};
 }
 
+/** Ids do GA4 vindos do navegador, saneados (vão pro metadata do MP). */
+function gaMetadata(ga) {
+  const limpa = (v) => (typeof v === 'string' && /^[\w.-]{1,64}$/.test(v) ? v : undefined);
+  const clientId = limpa(ga?.clientId);
+  const sessionId = limpa(ga?.sessionId);
+  return {
+    ...(clientId ? { ga_client_id: clientId } : {}),
+    ...(sessionId ? { ga_session_id: sessionId } : {}),
+  };
+}
+
 /**
  * Recarrega o preço de cada item na lista correta (Cliente Final,
  * Lojista ou Distribuição). O carrinho vem do localStorage, então o
@@ -77,7 +88,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { cliente, itens, frete, cupom: cupomCodigo } = await readJson(req);
+    const { cliente, itens, frete, cupom: cupomCodigo, ga } = await readJson(req);
 
     if (!cliente?.nome || !Array.isArray(itens) || itens.length === 0) {
       return res.status(400).json({ error: 'Pedido inválido: informe cliente e itens.' });
@@ -218,6 +229,7 @@ export default async function handler(req, res) {
       // antifraude do Mercado Pago pontua. Mandar só nome e e-mail derrubou
       // as duas primeiras compras reais em 10/09 com cc_rejected_high_risk.
       cliente: clienteFinal,
+      metadata: gaMetadata(ga),
     });
 
     if (cupomInfo) {
