@@ -31,6 +31,96 @@ function getDiscountAmount(subtotal) {
   return Math.round(subtotal * (pct / 100) * 100) / 100;
 }
 
+// ── Medição (GA4 + Pixel da Meta) ─────────────────
+// IDs são públicos. GA4 = propriedade "Tart Off" (558250406, conta Nexus Lab),
+// a mesma do tartoff.com.br; o linker junta as duas pontas numa sessão só.
+// Pixel fica vazio até o BM da Tart Off existir — sem ID, nada da Meta carrega.
+const GA4_ID = 'G-2PRH12MJFK';
+const META_PIXEL_ID = '';
+
+(function initTracking() {
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+  if (GA4_ID) {
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`;
+    document.head.appendChild(s);
+    gtag('js', new Date());
+    gtag('config', GA4_ID, { linker: { domains: ['tartoff.com.br', 'aionpharma.ind.br'] } });
+  }
+  if (META_PIXEL_ID && !window.fbq) {
+    /* eslint-disable */
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    /* eslint-enable */
+    fbq('init', META_PIXEL_ID);
+    fbq('track', 'PageView');
+  }
+})();
+
+/** Itens no formato de e-commerce do GA4. */
+function gaItems(items) {
+  return items.map((i) => ({
+    item_id: i.sku || i.id,
+    item_name: i.name,
+    price: Number(i.price) || 0,
+    quantity: Number(i.qty) || 1,
+  }));
+}
+
+/** Um evento nas duas ferramentas; `metaEvent` nulo = só GA4. */
+function track(gaEvent, items, extra = {}, metaEvent = null) {
+  try {
+    const value = items.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.qty) || 1), 0);
+    const params = { currency: 'BRL', value: Math.round(value * 100) / 100, items: gaItems(items), ...extra };
+    window.gtag?.('event', gaEvent, params);
+    if (metaEvent && window.fbq) {
+      window.fbq('track', metaEvent, {
+        currency: 'BRL',
+        value: params.value,
+        content_type: 'product',
+        content_ids: params.items.map((i) => i.item_id),
+        num_items: params.items.reduce((s, i) => s + i.quantity, 0),
+      }, extra.transaction_id ? { eventID: `purchase-${extra.transaction_id}` } : undefined);
+    }
+  } catch { /* medição nunca derruba a loja */ }
+}
+
+/**
+ * Compra: o carrinho é limpo na página de confirmação antes deste script
+ * rodar, então o pedido fica guardado no envio do checkout e é lido aqui.
+ * Dispara uma vez por pedido (a página pode ser recarregada).
+ */
+function trackPurchase(ref) {
+  try {
+    const order = JSON.parse(localStorage.getItem('aion_last_order') || 'null');
+    if (!order || !order.items?.length) return;
+    const id = ref || order.at;
+    if (localStorage.getItem(`aion_tracked_${id}`)) return;
+    track('purchase', order.items, {
+      transaction_id: String(id),
+      shipping: order.shipping || 0,
+      coupon: order.coupon || undefined,
+    }, 'Purchase');
+    localStorage.setItem(`aion_tracked_${id}`, '1');
+    localStorage.removeItem('aion_last_order');
+  } catch { /* silencioso */ }
+}
+window.trackPurchase = trackPurchase;
+
+// Contato pelo WhatsApp em qualquer página
+document.addEventListener('click', (e) => {
+  const a = e.target?.closest?.('a');
+  if (a && /wa\.me|whatsapp\.com/.test(a.href)) {
+    window.gtag?.('event', 'generate_lead', { method: 'whatsapp' });
+    window.fbq?.('track', 'Contact');
+  }
+}, { capture: true });
+
 // ── Init ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadCart();
@@ -119,6 +209,7 @@ function addToCart(id, name, price, image, sku) {
   } else {
     cart.push({ id, sku, name, price, image, qty: 1 });
   }
+  track('add_to_cart', [{ id, sku, name, price, qty: 1 }], {}, 'AddToCart');
   invalidarFrete();
   saveCart();
   renderCartUI();
@@ -533,6 +624,8 @@ async function b2bCadastrar(event) {
     // A conta nasce pendente: sem token, sem sessão e sem preço B2B até
     // a Aion aprovar no painel.
     event.target.reset();
+    window.gtag?.('event', 'generate_lead', { method: 'cadastro_lojista' });
+    window.fbq?.('track', 'Lead');
     showToast('🎉 Cadastro enviado! A Aion confere os dados e libera o seu acesso — você recebe um aviso assim que a conta for aprovada.', 7000);
   } catch (err) {
     showToast(`❌ ${err.message}`, 5000);
@@ -1069,6 +1162,7 @@ function openCheckout() {
   b2bPreencherCheckout();
   pfPreencherCheckout();
   renderCheckoutResumo();
+  track('begin_checkout', cart, appliedCoupon ? { coupon: appliedCoupon.codigo } : {}, 'InitiateCheckout');
   document.getElementById('checkout-overlay')?.classList.add('open');
   document.getElementById('checkout-panel')?.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1159,6 +1253,17 @@ async function enviarCheckout(event) {
     // O servidor reconfere o preço na tabela; se mudou (tabela nova na
     // Olist, carrinho velho), o carrinho acompanha antes do pagamento.
     if (Array.isArray(data.itens)) sincronizarPrecosDoCarrinho(data.itens);
+
+    // Guarda o pedido pra página de confirmação disparar a compra
+    try {
+      localStorage.setItem('aion_last_order', JSON.stringify({
+        at: Date.now(),
+        items: cart.map(({ id, sku, name, price, qty }) => ({ id, sku, name, price, qty })),
+        shipping: Number(selectedFrete?.price) || 0,
+        coupon: b2bLogado() ? null : appliedCoupon?.codigo || null,
+      }));
+    } catch { /* silencioso */ }
+    track('add_payment_info', cart, {}, 'AddPaymentInfo');
 
     // sem public key configurada → cai para o checkout externo (init_point)
     if (!data.publicKey) {
@@ -1608,6 +1713,7 @@ function initProductPage() {
       const meta = document.querySelector('meta[name="description"]');
       if (meta) meta.content = (p.description || p.name).slice(0, 160);
       root.innerHTML = renderProductPageHTML(p);
+      track('view_item', [{ id: p.id, sku: p.sku, name: p.name, price: p.price, qty: 1 }], {}, 'ViewContent');
       document.getElementById('product-breadcrumb-name').textContent = p.name;
       initRevealAnimations();
     })

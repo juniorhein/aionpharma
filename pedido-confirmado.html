@@ -190,7 +190,7 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<script src="script.js?v=7"></script>
+<script src="script.js?v=8"></script>
 <script>
   (function () {
     var p = new URLSearchParams(location.search);
@@ -238,6 +238,10 @@
     if (ref) rows += '<div class="confirm-meta-row"><span>Nº do pedido</span><span>' + ref + '</span></div>';
     if (pay && pay !== 'null') rows += '<div class="confirm-meta-row"><span>Nº do pagamento</span><span>' + pay + '</span></div>';
     meta.innerHTML = rows;
+
+    // Compra aprovada → GA4/Pixel (uma vez por pedido). Pix/boleto pendente
+    // não conta aqui: a confirmação deles vem depois, pelo webhook.
+    if (key === 'sucesso' && window.trackPurchase) window.trackPurchase(ref);
 
     // Na falha, o link primário vira "tentar novamente" (o carrinho foi mantido)
     if (key === 'falha') {
