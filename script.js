@@ -36,7 +36,7 @@ function getDiscountAmount(subtotal) {
 // a mesma do tartoff.com.br; o linker junta as duas pontas numa sessão só.
 // Pixel fica vazio até o BM da Tart Off existir — sem ID, nada da Meta carrega.
 const GA4_ID = 'G-2PRH12MJFK';
-const META_PIXEL_ID = '';
+const META_PIXEL_ID = '4704074246583186';
 
 (function initTracking() {
   window.dataLayer = window.dataLayer || [];
