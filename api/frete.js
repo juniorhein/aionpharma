@@ -12,6 +12,7 @@
 
 import { cotarFrete } from './_lib/olistfrete.js';
 import { garantirSkus } from './_lib/tiny.js';
+import { temFreteGratis } from './_lib/fretegratis.js';
 
 async function readJson(req) {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -44,10 +45,9 @@ export default async function handler(req, res) {
 
     const opcoes = await cotarFrete({ cepDestino: cep, itens: itensComSku });
 
-    // Frete grátis acima do limite (FREE_SHIPPING_THRESHOLD). 0 = desativado.
-    const limite = Number(process.env.FREE_SHIPPING_THRESHOLD || 0);
+    // Frete grátis: Sul e Sudeste (pela faixa do CEP) — ver _lib/fretegratis.js.
     const subtotal = itens.reduce((s, it) => s + (Number(it.price) || 0) * (Number(it.qty) || 1), 0);
-    const freteGratis = limite > 0 && subtotal >= limite;
+    const freteGratis = temFreteGratis({ cep, subtotal });
 
     if (!opcoes.length) {
       return res.status(200).json({ opcoes: [], freteGratis, aviso: 'Nenhuma transportadora disponível para este CEP.' });

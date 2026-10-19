@@ -1805,7 +1805,7 @@ function renderProductPageHTML(p) {
       </div>
       <div class="shipping-info">
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        <span>Frete grátis em compras acima de R$ 99</span>
+        <span>Frete grátis para Sul e Sudeste</span>
       </div>
     </div>
   </div>

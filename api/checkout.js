@@ -24,6 +24,7 @@ import {
 } from './_lib/b2b.js';
 import { getDb as getSupabaseAdmin } from './_lib/db.js';
 import { contaPfDaRequisicao, formatarCpf } from './_lib/pf.js';
+import { temFreteGratis } from './_lib/fretegratis.js';
 
 async function readJson(req) {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -141,6 +142,13 @@ export default async function handler(req, res) {
       (s, it) => s + Number(it.price) * Number(it.qty),
       0
     );
+
+    // Frete zero só vale onde a loja dá frete grátis (Sul/Sudeste).
+    if (valorFrete === 0 && !temFreteGratis({ cep: cliente.cep, subtotal: subtotalOriginal })) {
+      return res.status(400).json({
+        error: 'Frete inválido para este CEP. Calcule o frete novamente no carrinho.',
+      });
+    }
 
     let cupomInfo = null;
     let itensFinais = itensConferidos;
