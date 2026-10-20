@@ -25,10 +25,16 @@ function saveCoupon() {
   }
 }
 
-function getDiscountAmount(subtotal) {
+// Cupom vale só nos produtos Tart Off (gel dental) — espelha api/_lib/cupons.js
+const SKUS_CUPOM = ['1172', '1173', '1174', '1175'];
+
+function getDiscountAmount() {
   if (!appliedCoupon) return 0;
   const pct = Number(appliedCoupon.desconto_percent) || 0;
-  return Math.round(subtotal * (pct / 100) * 100) / 100;
+  const base = cart
+    .filter((i) => SKUS_CUPOM.includes(String(i.sku ?? '')))
+    .reduce((s, i) => s + Number(i.price) * Number(i.qty), 0);
+  return Math.round(base * (pct / 100) * 100) / 100;
 }
 
 // ── Medição (GA4 + Pixel da Meta) ─────────────────

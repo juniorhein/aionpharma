@@ -12,7 +12,7 @@ import { criarPreferencia, contaDaCredencial } from './_lib/mercadopago.js';
 import {
   buscarCupomValido,
   calcularDesconto,
-  aplicarDescontoNosItens,
+  aplicarDescontoNosItens, subtotalElegivel,
   salvarCheckoutCupom,
 } from './_lib/cupons.js';
 import {
@@ -161,7 +161,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: result.error });
       }
       cupomInfo = result.coupon;
-      const calc = calcularDesconto(subtotalOriginal, cupomInfo.desconto_percent);
+      const calc = calcularDesconto(subtotalElegivel(itensConferidos), cupomInfo.desconto_percent);
       valorDesconto = calc.valorDesconto;
       itensFinais = aplicarDescontoNosItens(itensConferidos, cupomInfo.desconto_percent);
       obsCupom = `Cupom ${cupomInfo.codigo} (${cupomInfo.desconto_percent}%): -R$ ${valorDesconto.toFixed(2)}.`;

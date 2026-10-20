@@ -50,6 +50,17 @@ export async function buscarCupomValido(codigo) {
   };
 }
 
+/** Cupom vale só nos produtos Tart Off (gel dental, SKUs 1172–1175). */
+export const SKUS_CUPOM = ['1172', '1173', '1174', '1175'];
+export function itemAceitaCupom(it) {
+  return SKUS_CUPOM.includes(String(it?.sku ?? ''));
+}
+
+/** Subtotal só dos itens que aceitam cupom. */
+export function subtotalElegivel(itens) {
+  return (itens || []).filter(itemAceitaCupom).reduce((s, it) => s + Number(it.price) * Number(it.qty), 0);
+}
+
 /** Aplica % de desconto no subtotal (2 casas). */
 export function calcularDesconto(subtotal, descontoPercent) {
   const sub = Math.max(0, Number(subtotal) || 0);
@@ -67,6 +78,7 @@ export function aplicarDescontoNosItens(itens, descontoPercent) {
   const pct = Math.max(0, Math.min(100, Number(descontoPercent) || 0));
   const fator = 1 - pct / 100;
   return itens.map((it) => {
+    if (!itemAceitaCupom(it)) return it;
     const price = Math.round(Number(it.price) * fator * 100) / 100;
     return { ...it, price: Math.max(0.01, price), priceOriginal: Number(it.price) };
   });
