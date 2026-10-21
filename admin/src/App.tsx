@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthProvider';
 import { useAuth } from './auth/auth-context';
+import VendasPage from './pages/VendasPage';
+import RankingsPage from './pages/RankingsPage';
 import LoginPage from './pages/LoginPage';
 import Layout from './components/Layout';
 import CouponsPage from './pages/CouponsPage';
@@ -29,7 +31,9 @@ function AppRoutes() {
           </PrivateRoute>
         }
       >
-        <Route index element={<Navigate to="/cupons" replace />} />
+        <Route index element={<Navigate to="/vendas" replace />} />
+        <Route path="vendas" element={<VendasPage />} />
+        <Route path="rankings" element={<RankingsPage />} />
         <Route path="cupons" element={<CouponsPage />} />
         <Route path="cupons/:id" element={<CouponStatsPage />} />
         <Route path="influencers" element={<InfluencersPage />} />

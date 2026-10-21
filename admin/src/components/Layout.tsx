@@ -12,6 +12,9 @@ export default function Layout() {
           <span className="brand-sub">CRM</span>
         </div>
         <nav className="nav">
+          <NavLink to="/vendas">Vendas</NavLink>
+          <NavLink to="/rankings">Rankings</NavLink>
+          <span className="nav-sep" aria-hidden />
           <NavLink to="/vitrine">Vitrine</NavLink>
           <NavLink to="/cupons">Cupons</NavLink>
           <NavLink to="/influencers">Influencers</NavLink>

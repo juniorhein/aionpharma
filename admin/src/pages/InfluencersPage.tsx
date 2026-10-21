@@ -7,9 +7,10 @@ type Influencer = {
   email: string | null;
   instagram: string | null;
   ativo: boolean;
+  comissao_percent?: number | string | null;
 };
 
-const empty = { nome: '', email: '', instagram: '', ativo: true };
+const empty = { nome: '', email: '', instagram: '', comissao_percent: '', ativo: true };
 
 export default function InfluencersPage() {
   const [list, setList] = useState<Influencer[]>([]);
@@ -33,6 +34,7 @@ export default function InfluencersPage() {
       nome: inf.nome,
       email: inf.email || '',
       instagram: inf.instagram || '',
+      comissao_percent: Number(inf.comissao_percent) ? String(Number(inf.comissao_percent)) : '',
       ativo: inf.ativo,
     });
   }
@@ -115,6 +117,15 @@ export default function InfluencersPage() {
               onChange={(e) => setForm({ ...form, instagram: e.target.value })}
             />
           </label>
+          <label>
+            Comissão (% sobre a venda com o cupom)
+            <input
+              inputMode="decimal"
+              placeholder="ex.: 10"
+              value={form.comissao_percent}
+              onChange={(e) => setForm({ ...form, comissao_percent: e.target.value })}
+            />
+          </label>
           <label className="check">
             <input
               type="checkbox"
@@ -146,6 +157,7 @@ export default function InfluencersPage() {
                 <tr>
                   <th>Nome</th>
                   <th>Instagram</th>
+                  <th>Comissão</th>
                   <th>Status</th>
                   <th />
                 </tr>
@@ -158,6 +170,7 @@ export default function InfluencersPage() {
                       {inf.email && <div className="muted small">{inf.email}</div>}
                     </td>
                     <td>{inf.instagram ? `@${inf.instagram}` : '—'}</td>
+                    <td>{Number(inf.comissao_percent) ? `${Number(inf.comissao_percent)}%` : '—'}</td>
                     <td>
                       <span className={inf.ativo ? 'badge ok' : 'badge off'}>
                         {inf.ativo ? 'Ativo' : 'Inativo'}

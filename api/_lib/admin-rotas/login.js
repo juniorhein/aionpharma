@@ -1,7 +1,7 @@
 /* Login do painel — substitui o signInWithPassword do Supabase.
    POST { email, password } -> { token, user } */
 
-import { autenticar, emitirToken } from '../_lib/auth.js';
+import { autenticar, emitirToken } from '../auth.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

@@ -12,9 +12,9 @@
    por isso tudo da vitrine passa por este arquivo.
    ================================================================ */
 
-import { requireAdmin } from '../_lib/auth.js';
-import { pesquisarProdutos, obterProduto, extrairImagem } from '../_lib/tiny.js';
-import { idListaPrecoB2C } from '../_lib/b2b.js';
+import { requireAdmin } from '../auth.js';
+import { pesquisarProdutos, obterProduto, extrairImagem } from '../tiny.js';
+import { idListaPrecoB2C } from '../b2b.js';
 import {
   lerDestaque,
   salvarDestaque,
@@ -24,7 +24,7 @@ import {
   salvarImagem,
   removerImagem,
   urlImagem,
-} from '../_lib/vitrine.js';
+} from '../vitrine.js';
 
 async function readJson(req) {
   if (req.body && typeof req.body === 'object') return req.body;

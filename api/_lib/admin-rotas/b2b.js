@@ -4,9 +4,9 @@
                           desativa ou reseta a senha de uma conta
    ================================================================ */
 
-import { getDb as getSupabaseAdmin } from '../_lib/db.js';
-import { requireAdmin } from '../_lib/auth.js';
-import { CAMPOS_PUBLICOS, NIVEIS, formatarCnpj, hashSenha } from '../_lib/b2b.js';
+import { getDb as getSupabaseAdmin } from '../db.js';
+import { requireAdmin } from '../auth.js';
+import { CAMPOS_PUBLICOS, NIVEIS, formatarCnpj, hashSenha } from '../b2b.js';
 
 async function readJson(req) {
   if (req.body && typeof req.body === 'object') return req.body;

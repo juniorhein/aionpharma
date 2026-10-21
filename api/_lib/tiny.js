@@ -140,6 +140,25 @@ export async function obterPedido(id) {
   return retorno.pedido;
 }
 
+/**
+ * Uma página da lista de pedidos (100 por página). Filtros do Tiny:
+ * dataInicial/dataFinal (dd/mm/aaaa) ou dataAtualizacao (dd/mm/aaaa hh:mm:ss).
+ * Sem resultado o Tiny responde "Erro"; aqui isso vira lista vazia.
+ */
+export async function pesquisarPedidos({ pagina = 1, ...filtros } = {}) {
+  try {
+    const retorno = await call('pedidos.pesquisa', { pagina: String(pagina), ...filtros });
+    return {
+      pedidos: (retorno.pedidos || []).map((p) => p.pedido),
+      paginas: Number(retorno.numero_paginas) || 1,
+    };
+  } catch (err) {
+    const msg = JSON.stringify(err.tinyRetorno?.erros || '');
+    if (/n[ãa]o retornou registros/i.test(msg)) return { pedidos: [], paginas: 0 };
+    throw err;
+  }
+}
+
 export async function alterarSituacaoPedido(id, situacao) {
   return call('pedido.alterar.situacao', { id, situacao });
 }

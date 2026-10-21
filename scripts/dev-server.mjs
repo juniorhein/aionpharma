@@ -57,7 +57,13 @@ async function readBody(req) {
 }
 
 async function handleApi(req, res, name, query) {
-  const file = path.join(ROOT, 'api', `${name}.js`);
+  let file = path.join(ROOT, 'api', `${name}.js`);
+  // Rota dinâmica da Vercel: api/admin/vendas → api/admin/[acao].js
+  if (!existsSync(file) && name.includes('/')) {
+    const pasta = name.slice(0, name.lastIndexOf('/'));
+    const dinamica = path.join(ROOT, 'api', pasta, '[acao].js');
+    if (existsSync(dinamica)) { file = dinamica; query = { ...query, acao: name.slice(pasta.length + 1) }; }
+  }
   if (!existsSync(file)) { res.status(404).json({ error: `api/${name}.js não encontrado` }); return; }
   try {
     const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`); // bust cache p/ hot edit
