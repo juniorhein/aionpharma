@@ -137,7 +137,8 @@ export function canalDoPedido(o) {
   const obs = String(o?.obs || '');
   const marcadores = listaMarcadores(o);
   const ec = nomeEcommerce(o);
-  if (/pedido da loja online/i.test(obs) || marcadores.some((m) => /loja online/i.test(m)) || /loja aion/i.test(ec)) {
+  // Os primeiros pedidos (10/09) dizem "Pedido originado pela loja online" e não têm marcador.
+  if (/loja online/i.test(obs) || marcadores.some((m) => /loja online/i.test(m)) || /loja aion/i.test(ec)) {
     return /pedido b2b/i.test(obs) ? 'loja_cnpj' : 'loja';
   }
   if (o?.numero_ecommerce || ec) {
