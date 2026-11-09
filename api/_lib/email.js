@@ -144,6 +144,75 @@ Assim que o pacote sair, enviamos o código de rastreio.`;
   });
 }
 
+/* ── Cliente: pedido enviado (rastreio) ────────────────────────── */
+
+/**
+ * Disparado pela rotina de envios (api/_lib/envios.js) quando o pedido
+ * sai. Sem código no Tiny, avisa que saiu e diz que o código vem depois.
+ * `para` + `teste` = prova para um endereço nosso (assunto marcado).
+ */
+export async function enviarPedidoEnviado(pedido, { para, teste = false } = {}) {
+  const c = pedido.cliente || {};
+  const destino = para ? [para] : c.email ? [c.email] : [];
+  if (!destino.length) return { pulado: 'cliente sem e-mail' };
+
+  const itens = (pedido.itens || []).map((i) => i.item || i);
+  const codigo = String(pedido.codigo_rastreamento || '').trim();
+  let url = String(pedido.url_rastreamento || '').trim();
+  if (!url && codigo && /OLIST/i.test(String(pedido.forma_envio || ''))) {
+    url = `https://envios.olist.com/rastreios/pacote/${encodeURIComponent(codigo)}`;
+  }
+  const frete = String(pedido.forma_frete || '').trim();
+  const transportadora = String(pedido.nome_transportador || '').trim() || frete.split(' - ')[0] || '';
+
+  const blocoRastreio = codigo
+    ? `
+    <div style="background:#f4f6f8;border-radius:10px;padding:16px;margin:0 0 20px">
+      <p style="margin:0 0 4px;font-size:13px;color:#8a97a5;text-transform:uppercase;letter-spacing:.04em">Código de rastreio</p>
+      <p style="margin:0 0 12px;font-size:18px;font-weight:700;letter-spacing:.03em">${escapar(codigo)}</p>
+      ${
+        url
+          ? `<a href="${escapar(url)}" style="display:inline-block;background:#1c2b3a;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600">Acompanhar entrega</a>`
+          : ''
+      }
+    </div>`
+    : `
+    <p style="margin:0 0 20px;color:#4a5b6c;line-height:1.55;font-size:14px">
+      O código de rastreio ainda não foi liberado pela transportadora. Se precisar dele,
+      é só responder este e-mail.
+    </p>`;
+
+  const corpo = `
+    <p style="margin:0 0 18px;color:#4a5b6c;line-height:1.55">
+      Boa notícia: seu pedido saiu para entrega${transportadora ? ` pela <strong>${escapar(transportadora)}</strong>` : ''}.
+    </p>
+    <p style="margin:0 0 18px;font-size:14px">
+      <strong>Pedido nº ${escapar(pedido.numero)}</strong>
+      ${frete && frete !== transportadora ? `<br><span style="color:#777">${escapar(frete)}</span>` : ''}
+    </p>
+    ${blocoRastreio}
+    <table style="width:100%;border-collapse:collapse;font-size:14px">
+      ${linhaItens(itens)}
+    </table>
+    <p style="margin:20px 0 6px;font-size:13px;color:#8a97a5;text-transform:uppercase;letter-spacing:.04em">Entrega</p>
+    <p style="margin:0;font-size:14px;line-height:1.5">${blocoEndereco(c)}</p>
+    <p style="margin:24px 0 0;font-size:14px;color:#4a5b6c">
+      Qualquer dúvida, é só responder este e-mail.
+    </p>`;
+
+  const texto = `Seu pedido ${pedido.numero} foi enviado${transportadora ? ` pela ${transportadora}` : ''}.
+${codigo ? `Código de rastreio: ${codigo}${url ? `\nAcompanhe: ${url}` : ''}` : 'O código de rastreio ainda não foi liberado pela transportadora; se precisar, responda este e-mail.'}
+Itens: ${itens.map((i) => `${i.quantidade} × ${i.descricao}`).join('; ')}
+Entrega: ${c.endereco || ''}, ${c.numero || ''} - ${c.cidade || ''}/${c.uf || ''}, CEP ${c.cep || ''}.`;
+
+  return enviar({
+    to: destino,
+    subject: `${teste ? '[TESTE] ' : ''}Pedido ${pedido.numero} enviado${codigo ? ` — rastreio ${codigo}` : ''} — Aion Pharma`,
+    html: moldura('Seu pedido foi enviado 📦', corpo),
+    texto,
+  });
+}
+
 /* ── Loja ──────────────────────────────────────────────────────── */
 
 export async function enviarAvisoLoja(pedido) {
@@ -190,4 +259,4 @@ Envio: ${pedido.forma_envio || '-'}`;
   });
 }
 
-export default { enviarConfirmacaoCliente, enviarAvisoLoja };
+export default { enviarConfirmacaoCliente, enviarAvisoLoja, enviarPedidoEnviado };

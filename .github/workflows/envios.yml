@@ -1,0 +1,25 @@
+# E-mail de "pedido enviado" da loja: chama a rotina /api/admin/envios.
+# A Vercel Hobby só aceita cron 1x por dia (vercel.json, 20h BRT); este
+# workflow cobre o horário comercial: de hora em hora, 8h–20h BRT, seg–sáb.
+# A rotina é idempotente (um e-mail por pedido, registro em envio_emails).
+name: envios-rastreio
+
+on:
+  schedule:
+    - cron: '7 11-23 * * 1-6'
+  workflow_dispatch:
+
+jobs:
+  rodar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Rodada de envios
+        env:
+          CRON_SECRET: ${{ secrets.AION_CRON_SECRET }}
+        run: |
+          code=$(curl -sS -o resposta.json -w '%{http_code}' --max-time 90 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            https://www.aionpharma.ind.br/api/admin/envios)
+          cat resposta.json; echo
+          test "$code" = "200"

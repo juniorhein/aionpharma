@@ -3,5 +3,11 @@
   "cleanUrls": true,
   "installCommand": "npm install --omit=dev && npm install --prefix admin",
   "buildCommand": "node scripts/build-for-vercel.mjs",
-  "outputDirectory": "public"
+  "outputDirectory": "public",
+  "crons": [
+    {
+      "path": "/api/admin/envios",
+      "schedule": "0 23 * * *"
+    }
+  ]
 }

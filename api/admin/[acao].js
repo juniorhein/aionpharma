@@ -1,7 +1,7 @@
 /* ================================================================
    /api/admin/:acao — painel, numa função só
    ----------------------------------------------------------------
-   login | coupons | influencers | b2b | vitrine | vendas
+   login | coupons | influencers | b2b | vitrine | vendas | envios
 
    Mesmo motivo do /api/b2b/[acao].js: o plano Hobby da Vercel aceita
    no máximo 12 funções em /api. As 5 rotas do painel eram 5 funções;
@@ -15,10 +15,11 @@ import influencers from '../_lib/admin-rotas/influencers.js';
 import b2b from '../_lib/admin-rotas/b2b.js';
 import vitrine from '../_lib/admin-rotas/vitrine.js';
 import vendas from '../_lib/admin-rotas/vendas.js';
+import envios from '../_lib/admin-rotas/envios.js';
 
-const ROTAS = { login, coupons, influencers, b2b, vitrine, vendas };
+const ROTAS = { login, coupons, influencers, b2b, vitrine, vendas, envios };
 
-// O passo de sincronização com o Tiny pode levar ~20 s.
+// O passo de sincronização com o Tiny pode levar ~20 s; a rodada de envios, ~40 s.
 export const config = { maxDuration: 60 };
 
 export default async function handler(req, res) {
