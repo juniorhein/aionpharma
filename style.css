@@ -3,7 +3,6 @@
    Navy + Cyan (brand oficial)
    ================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap');
 
 /* ── Tokens ───────────────────────────────────── */
 :root {
@@ -826,6 +825,8 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
   z-index: 1;
   max-height: 480px;
+  width: auto;
+  height: auto;
   object-fit: contain;
   filter: drop-shadow(0 24px 48px rgba(0,0,0,.4));
   animation: float 4s ease-in-out infinite;
@@ -2224,6 +2225,9 @@ h1, h2, h3, h4, h5, h6,
   inset: 0;
   opacity: 0;
   animation: heroBannerFade 12s infinite;
+  will-change: opacity;
+  contain: paint;
+  transform: translateZ(0);
 }
 
 .hero-banner-slide-1 {
@@ -3141,7 +3145,7 @@ h1, h2, h3, h4, h5, h6,
   animation: skeletonShimmer 1.4s ease infinite;
   border-radius: 8px;
 }
-@keyframes skeletonShimmer { 0% { background-position: 100% 0 } 100% { background-position: 0 0 } }
+@keyframes skeletonShimmer { 0%, 100% { opacity: 1 } 50% { opacity: .55 } }
 .skeleton-card { pointer-events: none; }
 .skeleton-card .product-image { aspect-ratio: 1/1; }
 .skeleton-line { height: 14px; margin: 10px 0; }
@@ -3335,4 +3339,11 @@ h1, h2, h3, h4, h5, h6,
 @media (max-width: 520px) {
   .pf-pedido { flex-direction: column; align-items: flex-start; }
   .pf-pedido-valor { align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-banner-slide { animation: none; will-change: auto; }
+  .hero-banner-slide-1 { opacity: 1; }
+  .hero-banner-slide-2 { opacity: 0; visibility: hidden; }
+  .skeleton { animation: none; }
 }

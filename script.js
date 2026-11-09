@@ -1555,7 +1555,7 @@ function localProductImage(name) {
   const size = n.includes('100') ? '100ml' : n.includes('50') ? '50ml' : null;
   const flavor = n.includes('banana') ? 'banana' : n.includes('menta') ? 'menta' : null;
   if (!flavor || !size) return null;
-  return `/assets/produtos/gel-${flavor}-${size}.png`;
+  return `/assets/produtos/gel-${flavor}-${size}.webp`;
 }
 
 // Deriva tags simples (animal/categoria) a partir do nome — best effort
@@ -1756,6 +1756,79 @@ function productPageNotFound() {
   </div>`;
 }
 
+/* ================================================================
+   Composição dos produtos — SÓ com fonte real, nunca inventar.
+   - TartOff gel: apresentação de treinamento da Aion (jan/2026) e
+     rótulo oficial (set/2026), no Drive do cliente.
+   - Miaw Clean e Everbone: texto do próprio produto no Tiny.
+   Produto sem fonte não ganha a seção (Green Cat, Osso Toy 4 Pet).
+   ================================================================ */
+const COMPOSICOES = [
+  {
+    casa: (n) => n.includes('GEL DENTAL') || n.includes('TARTOFF'),
+    intro: 'Fórmula desenvolvida por veterinário com substâncias vegetais que protegem e promovem a saúde bucal do pet.',
+    grupos: [
+      {
+        titulo: 'Ativos naturais',
+        itens: [
+          ['Aloe vera', 'previne a inflamação das gengivas, limpa e protege o esmalte dos dentes.'],
+          ['Alecrim', 'inibe a proliferação de bactérias que causam cáries.'],
+          ['Chá verde', 'ação adstringente que remove a sujeira e evita a formação de placas.'],
+          ['Menta', 'ação refrescante, combate o mau hálito e a proliferação bacteriana.'],
+        ],
+      },
+      {
+        titulo: 'Base',
+        texto: 'Clorofila, álcool de milho, glicerina, carbômero, lauril, benzoato e água — uma base suave para o produto agir sem agredir.',
+      },
+    ],
+  },
+  {
+    casa: (n) => n.includes('MIAW CLEAN'),
+    grupos: [
+      {
+        titulo: 'Matéria-prima',
+        texto: '100% fécula de mandioca — matéria-prima natural, renovável e biodegradável.',
+      },
+    ],
+  },
+  {
+    casa: (n) => n.includes('EVERBONE'),
+    grupos: [
+      {
+        titulo: 'Material',
+        texto: 'Nylon técnico atóxico, livre de BPA.',
+      },
+      {
+        titulo: 'Sabor',
+        texto: 'Tecnologia EPT (Encapsulated Protein Technology): proteína e aroma natural em toda a estrutura do osso, não só na superfície.',
+      },
+    ],
+  },
+];
+
+function composicaoDoProduto(p) {
+  const n = String(p.name || '').toUpperCase();
+  return COMPOSICOES.find((c) => c.casa(n)) || null;
+}
+
+function renderComposicaoHTML(p) {
+  const c = composicaoDoProduto(p);
+  if (!c) return '';
+  const grupos = c.grupos.map((g) => {
+    const corpo = g.itens
+      ? `<ul class="composicao-lista">${g.itens.map(([nome, txt]) => `<li><strong>${nome}:</strong> ${txt}</li>`).join('')}</ul>`
+      : `<p>${g.texto}</p>`;
+    return `<div class="composicao-grupo"><h3>${g.titulo}</h3>${corpo}</div>`;
+  }).join('');
+  return `
+    <div class="tab-content active product-composicao" id="tab-composicao">
+      <h2 class="heading-3" style="margin-bottom:1rem">Composição</h2>
+      ${c.intro ? `<p class="composicao-intro">${c.intro}</p>` : ''}
+      ${grupos}
+    </div>`;
+}
+
 function renderProductPageHTML(p) {
   const animalLabel = p.animal === 'gato' ? '🐈 Gatos'
     : p.animal === 'cao' ? '🐕 Cães'
@@ -1788,6 +1861,7 @@ function renderProductPageHTML(p) {
           ${stockBadge}
         </div>
         <p class="product-description">${desc}</p>
+        ${composicaoDoProduto(p) ? '<a href="#tab-composicao" class="composicao-link">Ver composição</a>' : ''}
       </div>
       <div class="price-block">
         <div class="price-row">
@@ -1820,6 +1894,7 @@ function renderProductPageHTML(p) {
       <h2 class="heading-3" style="margin-bottom:1rem">Sobre o produto</h2>
       <div class="product-long-desc">${desc.replace(/\n/g, '<br>')}</div>
     </div>
+    ${renderComposicaoHTML(p)}
   </div>`;
 }
 

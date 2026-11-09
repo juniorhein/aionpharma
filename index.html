@@ -9,7 +9,11 @@
   <meta property="og:title" content="Aion Pharma — Saúde e Bem-Estar para o Seu Pet" />
   <meta property="og:description" content="Produtos veterinários formulados por especialistas para o cuidado completo do seu pet." />
   <meta property="og:type" content="website" />
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&amp;family=Inter:wght@300;400;500;600&amp;display=swap" />
+  <link rel="preload" as="image" type="image/webp" href="assets/images/hero-tartoff-slide-1-1920.webp" imagesrcset="assets/images/hero-tartoff-slide-1-828.webp 828w, assets/images/hero-tartoff-slide-1-1920.webp 1920w" imagesizes="100vw" fetchpriority="high" />
+  <link rel="stylesheet" href="style.css?v=7" />
   <link rel="icon" type="image/png" href="assets/brand/logo-mark.png" />
 </head>
 <body>
@@ -20,7 +24,7 @@
   <header id="header">
     <div class="container">
       <div class="header-inner">
-        <a href="index.html" class="logo" aria-label="Aion Pharma Home"><img src="assets/brand/logo.png" alt="Aion Pharma" class="logo-img" /></a>
+        <a href="index.html" class="logo" aria-label="Aion Pharma Home"><img src="assets/brand/logo.webp" alt="Aion Pharma" class="logo-img" width="433" height="133" decoding="async" /></a>
 
         <nav class="nav-links" aria-label="Navegação principal">
           <a href="index.html" class="active">Início</a>
@@ -70,10 +74,16 @@
 
   <div class="hero-banner-slider" aria-hidden="true">
     <div class="hero-banner-slide hero-banner-slide-1">
-      <img src="assets/images/hero-tartoff-slide-1.png?v=2" alt="" loading="eager" />
+      <picture>
+        <source type="image/webp" srcset="assets/images/hero-tartoff-slide-1-828.webp 828w, assets/images/hero-tartoff-slide-1-1920.webp 1920w" sizes="100vw" />
+        <img src="assets/images/hero-tartoff-slide-1-1920.webp" alt="" fetchpriority="high" loading="eager" decoding="async" width="1920" height="1081" />
+      </picture>
     </div>
     <div class="hero-banner-slide hero-banner-slide-2">
-      <img src="assets/images/hero-tartoff-slide-2.png?v=2" alt="" loading="lazy" />
+      <picture>
+        <source type="image/webp" srcset="assets/images/hero-tartoff-slide-2-828.webp 828w, assets/images/hero-tartoff-slide-2-1920.webp 1920w" sizes="100vw" />
+        <img src="assets/images/hero-tartoff-slide-2-1920.webp" alt="" fetchpriority="low" loading="lazy" decoding="async" width="1920" height="1081" />
+      </picture>
     </div>
   </div>
 
@@ -270,7 +280,7 @@
       </div>
       <div class="featured-image-wrap reveal reveal-delay-2">
         <div class="product-glow"></div>
-        <img id="destaque-img" src="assets/produtos/gel-tartoff-lineup.png" alt="Linha TartOff completa — Gel Dental sabores Menta e Banana, 50g e 100g, para cães e gatos" />
+        <img id="destaque-img" src="assets/produtos/gel-tartoff-lineup.webp" alt="Linha TartOff completa — Gel Dental sabores Menta e Banana, 50g e 100g, para cães e gatos" width="1216" height="1100" decoding="async" loading="lazy" />
       </div>
     </div>
   </div>
@@ -297,7 +307,7 @@
   <div class="container">
     <div class="why-inner">
       <div class="why-image reveal">
-        <img src="assets/images/hero_pets.png" alt="Pets saudáveis e felizes com Aion Pharma" />
+        <img src="assets/images/hero_pets.webp" alt="Pets saudáveis e felizes com Aion Pharma" width="1024" height="1024" decoding="async" loading="lazy" />
         <div class="why-badge-float">
           <div class="big-number">98%</div>
           <div class="big-label">de satisfação dos tutores</div>
@@ -352,7 +362,7 @@
           "Minha cachorra sofria muito com mau hálito e tártaro acumulado. Depois de apenas 3 semanas usando o Tartoff, a diferença foi incrível! Os dentes voltaram a ficar brancos e ela até permite que a gente aproxime o focinho agora."
         </p>
         <div class="testimonial-author">
-          <img src="assets/images/testimonial_dog.png" alt="Thor, Golden Retriever" class="testimonial-avatar" loading="lazy" />
+          <img src="assets/images/testimonial_dog.webp" alt="Thor, Golden Retriever" class="testimonial-avatar" loading="lazy" width="160" height="160" decoding="async" />
           <div>
             <div class="testimonial-name">Camila Ferreira</div>
             <div class="testimonial-pet">Tutora do Thor, 4 anos 🐕</div>
@@ -366,7 +376,7 @@
           "Tinha desistido de pellets porque todos que testei eram ruins. O Pellet Higiênico Aion é diferente — absorve muito bem, não espirra por todo lado e o cheiro de amônia sumiu completamente. Minha gata aprovou de primeira!"
         </p>
         <div class="testimonial-author">
-          <img src="assets/images/testimonial_cat.png" alt="Luna, Gata" class="testimonial-avatar" loading="lazy" />
+          <img src="assets/images/testimonial_cat.webp" alt="Luna, Gata" class="testimonial-avatar" loading="lazy" width="160" height="160" decoding="async" />
           <div>
             <div class="testimonial-name">Roberto Santos</div>
             <div class="testimonial-pet">Tutor da Luna, 2 anos 🐈</div>
@@ -380,7 +390,7 @@
           "Tenho dois gatos e um cachorro, então precisava de algo que funcionasse para todos. Comprei o Kit Família do Tartoff e agora higiene bucal virou parte da rotina deles. O veterinário ficou impressionado na última consulta!"
         </p>
         <div class="testimonial-author">
-          <img src="assets/images/testimonial_dog.png" alt="Pets da Ana" class="testimonial-avatar" loading="lazy" />
+          <img src="assets/images/testimonial_dog.webp" alt="Pets da Ana" class="testimonial-avatar" loading="lazy" width="160" height="160" decoding="async" />
           <div>
             <div class="testimonial-name">Ana Claudia Lima</div>
             <div class="testimonial-pet">Tutora de 3 pets 🐕🐈🐈</div>
@@ -405,7 +415,7 @@
     <div class="blog-grid">
       <article class="blog-card reveal">
         <div class="blog-image">
-          <img src="assets/blog/blog-bucal.jpg" alt="Cão saudável — cuidados com a higiene bucal e tártaro" loading="lazy" />
+          <img src="assets/blog/blog-bucal.jpg" alt="Cão saudável — cuidados com a higiene bucal e tártaro" loading="lazy" width="800" height="520" decoding="async" />
         </div>
         <div class="blog-body">
           <div class="blog-category">Higiene Bucal</div>
@@ -424,7 +434,7 @@
       </article>
       <article class="blog-card reveal reveal-delay-1">
         <div class="blog-image">
-          <img src="assets/blog/blog-lar.jpg" alt="Gato usando a caixa de areia — higiene do lar" loading="lazy" />
+          <img src="assets/blog/blog-lar.jpg" alt="Gato usando a caixa de areia — higiene do lar" loading="lazy" width="800" height="520" decoding="async" />
         </div>
         <div class="blog-body">
           <div class="blog-category">Higiene do Lar</div>
@@ -443,7 +453,7 @@
       </article>
       <article class="blog-card reveal reveal-delay-2">
         <div class="blog-image">
-          <img src="assets/blog/blog-bemestar.jpg" alt="Cão e gato felizes juntos — rotina de saúde e bem-estar" loading="lazy" />
+          <img src="assets/blog/blog-bemestar.jpg" alt="Cão e gato felizes juntos — rotina de saúde e bem-estar" loading="lazy" width="800" height="520" decoding="async" />
         </div>
         <div class="blog-body">
           <div class="blog-category">Bem-Estar</div>
@@ -505,7 +515,7 @@
   <div class="container">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="/" class="logo"><img src="assets/brand/logo.png" alt="Aion Pharma" class="logo-img" /></a>
+        <a href="/" class="logo"><img src="assets/brand/logo.webp" alt="Aion Pharma" class="logo-img" width="433" height="133" decoding="async" /></a>
         <p>Desenvolvemos produtos veterinários com rigor científico e carinho pelos animais. Porque o seu pet merece o melhor cuidado.</p>
         <div class="footer-social">
           <a href="https://www.instagram.com/tartoff.oficial/" class="social-link" target="_blank" rel="noopener" aria-label="Instagram">
@@ -670,7 +680,7 @@
 <!-- ───── Toast Container ───── -->
 <div class="toast-container" id="toast-container"></div>
 
-<script src="https://sdk.mercadopago.com/js/v2"></script>
-<script src="script.js?v=11"></script>
+<script defer src="https://sdk.mercadopago.com/js/v2"></script>
+<script defer src="script.js?v=12"></script>
 </body>
 </html>

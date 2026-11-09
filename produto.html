@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Produto — Aion Pharma</title>
   <meta name="description" content="Produto Aion Pharma para saúde e bem-estar do seu pet." />
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&amp;family=Inter:wght@300;400;500;600&amp;display=swap" />
+  <link rel="stylesheet" href="style.css?v=7" />
   <link rel="icon" type="image/png" href="assets/brand/logo-mark.png" />
   <style>
     .breadcrumb {
@@ -183,6 +186,43 @@
       line-height: 1.8;
       font-size: 1rem;
     }
+    .product-composicao {
+      margin-top: var(--space-10);
+      padding: var(--space-8);
+      border: 1px solid var(--clr-border);
+      border-radius: 1rem;
+      background: var(--clr-cream);
+      scroll-margin-top: 100px;
+    }
+    .product-composicao h3 {
+      font-size: 1rem;
+      margin: var(--space-5) 0 var(--space-2);
+      color: var(--clr-dark);
+    }
+    .product-composicao p,
+    .composicao-lista li {
+      color: var(--clr-text-muted);
+      line-height: 1.7;
+    }
+    .composicao-lista {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: var(--space-2);
+    }
+    .composicao-lista strong { color: var(--clr-dark); }
+    .composicao-link {
+      display: inline-block;
+      margin-top: var(--space-3);
+      font-weight: 700;
+      font-size: .9rem;
+      color: var(--clr-primary);
+      text-decoration: underline;
+    }
+    @media (max-width: 640px) {
+      .product-composicao { padding: var(--space-5); }
+    }
     .product-page-loading,
     .product-page-error {
       text-align: center;
@@ -206,7 +246,7 @@
 <header id="header">
   <div class="container">
     <div class="header-inner">
-      <a href="index.html" class="logo"><img src="assets/brand/logo.png" alt="Aion Pharma" class="logo-img" /></a>
+      <a href="index.html" class="logo"><img src="assets/brand/logo.webp" alt="Aion Pharma" class="logo-img" width="433" height="133" decoding="async" /></a>
       <nav class="nav-links" aria-label="Navegação principal">
         <a href="index.html">Início</a>
         <a href="produtos.html" class="active">Produtos</a>
@@ -261,7 +301,7 @@
   <div class="container">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="index.html" class="logo"><img src="assets/brand/logo.png" alt="Aion Pharma" class="logo-img" /></a>
+        <a href="index.html" class="logo"><img src="assets/brand/logo.webp" alt="Aion Pharma" class="logo-img" width="433" height="133" decoding="async" /></a>
         <p>Desenvolvemos produtos veterinários com rigor científico e carinho pelos animais. Porque o seu pet merece o melhor cuidado.</p>
         <div class="footer-social">
           <a href="https://www.instagram.com/tartoff.oficial/" class="social-link" target="_blank" rel="noopener" aria-label="Instagram">
@@ -415,7 +455,7 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<script src="https://sdk.mercadopago.com/js/v2"></script>
-<script src="script.js?v=11"></script>
+<script defer src="https://sdk.mercadopago.com/js/v2"></script>
+<script defer src="script.js?v=12"></script>
 </body>
 </html>
