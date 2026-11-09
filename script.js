@@ -1481,6 +1481,13 @@ function escHtml(s) {
   ));
 }
 
+const WEBP_LOCAIS = new Set([
+  'assets/produtos/gel-tartoff-lineup.png', 'assets/produtos/gel-banana-100ml.png',
+  'assets/produtos/gel-banana-50ml.png', 'assets/produtos/gel-menta-100ml.png',
+  'assets/produtos/gel-menta-50ml.png', 'assets/images/hero_pets.png',
+  'assets/images/tartoff_product.png', 'assets/images/pellet_product.png',
+]);
+
 function aplicarDestaque(d, produtos) {
   const secao = document.getElementById('featured-product');
   if (!secao || !d) return;
@@ -1542,7 +1549,10 @@ function aplicarDestaque(d, produtos) {
 
   const img = document.getElementById('destaque-img');
   if (img && d.imagem) {
-    img.src = d.imagem;
+    // PNG local que já tem versão WebP (bem mais leve) → usa o WebP
+    img.src = WEBP_LOCAIS.has(String(d.imagem).replace(/^\//, ''))
+      ? String(d.imagem).replace(/\.png$/, '.webp')
+      : d.imagem;
     img.alt = [d.titulo, d.tituloRealce].filter(Boolean).join(' ') || img.alt;
   }
 }
