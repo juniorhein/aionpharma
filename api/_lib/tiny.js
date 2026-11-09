@@ -145,6 +145,12 @@ export async function obterPedido(id) {
  * dataInicial/dataFinal (dd/mm/aaaa) ou dataAtualizacao (dd/mm/aaaa hh:mm:ss).
  * Sem resultado o Tiny responde "Erro"; aqui isso vira lista vazia.
  */
+/** Link público da DANFE de uma nota emitida (nota.fiscal.obter.link). */
+export async function linkNotaFiscal(idNota) {
+  const retorno = await call('nota.fiscal.obter.link', { id: String(idNota) });
+  return retorno.link_nfe || null;
+}
+
 export async function pesquisarPedidos({ pagina = 1, ...filtros } = {}) {
   try {
     const retorno = await call('pedidos.pesquisa', { pagina: String(pagina), ...filtros });
@@ -205,7 +211,9 @@ export function montarPedido({ cliente, itens, observacoes = '', situacao = 'abe
   // senão a Expedição imprime só a etiqueta interna do ERP, sem rastreio e sem
   // postagem contratada — a transportadora não reconhece (Gustavo, 24/09/2026).
   const olistEnvios = /olist envios/i.test(frete?.company || '');
-  const obsFrete = servicoFrete ? `Frete escolhido: ${servicoFrete} (R$ ${valorFrete.toFixed(2)}).` : '';
+  const prazoFrete = Number(frete?.prazo);
+  const txtPrazo = prazoFrete > 0 && prazoFrete < 120 ? `, prazo ${Math.round(prazoFrete)} dias úteis` : '';
+  const obsFrete = servicoFrete ? `Frete escolhido: ${servicoFrete} (R$ ${valorFrete.toFixed(2)}${txtPrazo}).` : '';
   const pj = (cliente.tipoPessoa || 'F') === 'J';
 
   return {

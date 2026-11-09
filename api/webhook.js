@@ -9,10 +9,19 @@
    ================================================================ */
 
 import { obterPagamento } from './_lib/mercadopago.js';
-import { alterarSituacaoPedido, gerarNotaFiscal, obterPedido } from './_lib/tiny.js';
+import { alterarSituacaoPedido, gerarNotaFiscal } from './_lib/tiny.js';
 import { confirmarResgatePorPedido } from './_lib/cupons.js';
-import { enviarAvisoLoja, enviarConfirmacaoCliente } from './_lib/email.js';
+import { aoPagamento } from './_lib/regua.js';
 import { enviarCompraGA4 } from './_lib/ga4.js';
+
+async function emails(pagamento) {
+  try {
+    const r = await aoPagamento(pagamento);
+    r.filter((x) => x?.erro).forEach((x) => console.error('[/api/webhook] e-mail:', x.erro));
+  } catch (err) {
+    console.error('[/api/webhook] e-mail:', err.message);
+  }
+}
 
 export default async function handler(req, res) {
   // Responda 200 rápido — o MP reenvia se não receber 200.
@@ -40,24 +49,10 @@ export default async function handler(req, res) {
     if (status === 'approved') {
       await alterarSituacaoPedido(pedidoId, 'aprovado');
 
-      // Confirmação por e-mail: o cliente precisa de um comprovante e a
-      // equipe precisa saber que entrou venda sem ficar olhando o painel.
-      // Falha de e-mail NÃO pode derrubar o webhook — o MP reenvia o
-      // aviso e o pedido seria reprocessado à toa.
-      try {
-        const pedido = await obterPedido(pedidoId);
-        if (pedido) {
-          const envios = await Promise.allSettled([
-            enviarConfirmacaoCliente(pedido),
-            enviarAvisoLoja(pedido),
-          ]);
-          envios
-            .filter((e) => e.status === 'rejected')
-            .forEach((e) => console.error('[/api/webhook] e-mail:', e.reason?.message || e.reason));
-        }
-      } catch (mailErr) {
-        console.error('[/api/webhook] e-mail:', mailErr.message);
-      }
+      // E-mails (régua em api/_lib/regua.js): confirmação pro cliente e
+      // aviso pra equipe, uma vez só por pedido. Falha de e-mail NÃO pode
+      // derrubar o webhook — o MP reenvia e o pedido seria reprocessado.
+      await emails(pagamento);
 
       // Venda no GA4 (cobre Pix/boleto, aprovados fora do site).
       // Medição nunca derruba o webhook.
@@ -86,6 +81,9 @@ export default async function handler(req, res) {
       }
     } else if (status === 'cancelled' || status === 'rejected') {
       await alterarSituacaoPedido(pedidoId, 'cancelado');
+      await emails(pagamento); // registra a falha; a rotina manda o "não aprovado"
+    } else if (status === 'pending' || status === 'in_process') {
+      await emails(pagamento); // "pedido recebido" com Pix/boleto
     }
 
     return res.status(200).json({ ok: true, pedidoId, status });

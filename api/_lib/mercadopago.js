@@ -199,4 +199,19 @@ export async function obterPagamento(paymentId) {
   return data;
 }
 
-export default { criarPreferencia, obterPagamento, contaDaCredencial };
+/** Pagamentos de um pedido (external_reference), o mais recente primeiro. */
+export async function buscarPagamentos(externalReference) {
+  const qs = new URLSearchParams({
+    external_reference: String(externalReference),
+    sort: 'date_created',
+    criteria: 'desc',
+  });
+  const res = await fetch(`${BASE_URL}/v1/payments/search?${qs}`, {
+    headers: { Authorization: `Bearer ${getAccessToken()}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(`Mercado Pago busca: ${data?.message || res.status}`);
+  return data.results || [];
+}
+
+export default { criarPreferencia, obterPagamento, buscarPagamentos, contaDaCredencial };

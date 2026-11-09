@@ -25,6 +25,7 @@ import {
 import { getDb as getSupabaseAdmin } from './_lib/db.js';
 import { contaPfDaRequisicao, formatarCpf } from './_lib/pf.js';
 import { temFreteGratis } from './_lib/fretegratis.js';
+import { registrarPedidoLoja } from './_lib/regua.js';
 
 async function readJson(req) {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -262,6 +263,21 @@ export default async function handler(req, res) {
     // O `sandbox_init_point` foi descontinuado (sandbox.mercadopago.com.br
     // devolve erro), entao o link e sempre o `init_point` -- o que muda e o
     // alerta, para ninguem acreditar que a loja esta recebendo de verdade.
+    // Guarda link de pagamento e prazo para a régua de e-mails
+    // ("não aprovado" manda o cliente de volta a este link).
+    try {
+      await registrarPedidoLoja({
+        idTiny: pedidoId,
+        numero,
+        email: clienteFinal.email,
+        prefId: preferencia.id,
+        link: preferencia.init_point,
+        prazoDias: frete?.prazo,
+      });
+    } catch (reguaErr) {
+      console.error('[/api/checkout] pedidos_loja:', reguaErr.message);
+    }
+
     const contaMp = await contaDaCredencial();
     const paymentUrl = preferencia.init_point;
     if (contaMp.ehTeste) {
