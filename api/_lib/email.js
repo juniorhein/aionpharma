@@ -20,7 +20,12 @@
 const RESEND_URL = 'https://api.resend.com/emails';
 
 const FROM = process.env.EMAIL_FROM || 'Aion Pharma <pedidos@envio.aionpharma.ind.br>';
-const REPLY_TO = process.env.EMAIL_REPLY_TO || 'comercial@tartoff.com.br';
+// Respostas do cliente vão para todos da lista (vírgula), ex.
+// "comercial@tartoff.com.br,marketing@tartoff.com.br".
+const REPLY_TO = (process.env.EMAIL_REPLY_TO || 'comercial@tartoff.com.br')
+  .split(',')
+  .map((e) => e.trim())
+  .filter(Boolean);
 const ADMIN = (process.env.EMAIL_ADMIN || '')
   .split(',')
   .map((e) => e.trim())
