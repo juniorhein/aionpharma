@@ -50,7 +50,7 @@ export default function AfiliadosPage() {
     <header className="page-header"><div><h1>Afiliados</h1><p className="muted">Links, cupons e resultados dos parceiros</p></div></header>
     {error && <p className="error" role="alert">{error}</p>}
     {notice && <p role="status">{notice}</p>}
-    <div className="grid-2" style={{ marginBottom: '1.25rem' }}>
+    <div className="grid-2" style={{ marginBottom: '1.25rem', alignItems: 'start' }}>
       <form className="panel form-panel" onSubmit={submit}>
         <h2>{editing ? 'Editar afiliado' : 'Novo afiliado'}</h2>
         <label>Nome*<input required maxLength={200} value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} /></label>
@@ -68,7 +68,7 @@ export default function AfiliadosPage() {
       <form className="row-actions" onSubmit={e => { e.preventDefault(); void action(load); }}>
         <label>De <input aria-label="Data inicial" type="date" value={inicio} onChange={e => setInicio(e.target.value)} /></label>
         <label>Até <input aria-label="Data final" type="date" value={fim} onChange={e => setFim(e.target.value)} /></label>
-        <button className="btn-ghost" disabled={busy}>Filtrar</button>
+        <button className="btn-primary" disabled={busy} style={{ alignSelf: 'flex-end' }}>Filtrar</button>
       </form>
       <div style={{ overflowX: 'auto' }}><table className="table"><thead><tr><th>Afiliado</th><th>Cupom</th><th>Taxa</th><th>Status</th><th>Cliques</th><th>Pedidos</th><th>Pagos</th><th>Faturamento pago</th><th>Comissão</th><th>Ações</th></tr></thead>
         <tbody>{list.map(a => <tr key={a.id}>
