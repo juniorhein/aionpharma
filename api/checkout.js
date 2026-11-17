@@ -26,6 +26,7 @@ import { getDb as getSupabaseAdmin } from './_lib/db.js';
 import { contaPfDaRequisicao, formatarCpf } from './_lib/pf.js';
 import { temFreteGratis } from './_lib/fretegratis.js';
 import { registrarPedidoLoja } from './_lib/regua.js';
+import { resolverAfiliado, salvarAtribuicao } from './_lib/afiliados.js';
 
 async function readJson(req) {
   if (req.body && typeof req.body === 'object') return req.body;
@@ -90,7 +91,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { cliente, itens, frete, cupom: cupomCodigo, ga } = await readJson(req);
+    const { cliente, itens, frete, cupom: cupomCodigo, ga, afiliado: afiliadoCodigo } = await readJson(req);
 
     if (!cliente?.nome || !Array.isArray(itens) || itens.length === 0) {
       return res.status(400).json({ error: 'Pedido inválido: informe cliente e itens.' });
@@ -168,6 +169,13 @@ export default async function handler(req, res) {
       obsCupom = `Cupom ${cupomInfo.codigo} (${cupomInfo.desconto_percent}%): -R$ ${valorDesconto.toFixed(2)}.`;
     }
 
+    let afiliado = null;
+    try {
+      afiliado = await resolverAfiliado(afiliadoCodigo, cupomInfo?.id);
+    } catch (err) {
+      console.error('[/api/checkout] resolver afiliado:', err.message);
+    }
+
     const obsB2B = conta
       ? `Pedido B2B — ${conta.razao_social} (${formatarCnpj(conta.cnpj)}), tabela ${rotuloDoNivel(conta.nivel)}.`
       : '';
@@ -186,6 +194,14 @@ export default async function handler(req, res) {
       situacao: 'aberto',
     });
     const { id: pedidoId, numero } = await incluirPedido(pedido);
+    try {
+      // Base = o que o Mercado Pago cobra pelos itens (preço já arredondado por unidade), sem frete.
+      const baseAfiliado = Math.round(itensFinais.reduce((s, it) => s + Number(it.price) * Number(it.qty), 0) * 100) / 100;
+      await salvarAtribuicao(pedidoId, afiliado, baseAfiliado,
+        Math.round((baseAfiliado + valorFrete) * 100) / 100);
+    } catch (err) {
+      console.error('[/api/checkout] salvar afiliado:', err.message);
+    }
 
     if (conta) {
       try {

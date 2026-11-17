@@ -17,6 +17,7 @@ export default function Layout() {
           <span className="nav-sep" aria-hidden />
           <NavLink to="/vitrine">Vitrine</NavLink>
           <NavLink to="/cupons">Cupons</NavLink>
+          <NavLink to="/afiliados">Afiliados</NavLink>
           <NavLink to="/influencers">Influencers</NavLink>
           <NavLink to="/b2b">Contas CNPJ</NavLink>
         </nav>

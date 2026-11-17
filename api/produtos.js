@@ -12,6 +12,7 @@
    ================================================================ */
 
 import { pesquisarProdutos, obterProduto, extrairImagem } from './_lib/tiny.js';
+import { afiliadoPublico } from './_lib/afiliados.js';
 import { lerDestaque, lerOverrides, aplicarOverrides, lerImagem } from './_lib/vitrine.js';
 import {
   contaDaRequisicao,
@@ -72,6 +73,7 @@ async function mapLimit(items, limit, fn) {
 }
 
 export default async function handler(req, res) {
+  if (req.query?.afiliado !== undefined) return afiliadoPublico(req, res);
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ error: 'Método não permitido' });

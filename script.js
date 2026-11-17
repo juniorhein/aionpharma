@@ -148,6 +148,8 @@ document.addEventListener('click', (e) => {
 document.addEventListener('DOMContentLoaded', () => {
   loadCart();
   loadCoupon();
+  if (appliedCoupon?.afiliado && !lerAfiliado()) { appliedCoupon = null; saveCoupon(); }
+  initAfiliado();
   renderCartUI();
   initScrollBehavior();
   initRevealAnimations();
@@ -1006,6 +1008,57 @@ function pfPreencherCheckout() {
 
 /* ── Cupom de desconto ───────────────────────────────────────── */
 
+// A janela não é renovada na navegação comum. Cada nova entrada por link
+// substitui a anterior; history.state mantém o id no reload para deduplicar.
+function lerAfiliado() {
+  try {
+    const a = JSON.parse(localStorage.getItem('aion_afiliado') || 'null');
+    if (a && a.expira > Date.now() && /^[a-z0-9][a-z0-9_-]{0,63}$/.test(a.codigo)) return a;
+    localStorage.removeItem('aion_afiliado');
+  } catch { /* armazenamento bloqueado */ }
+  return null;
+}
+
+async function initAfiliado() {
+  const params = new URLSearchParams(location.search);
+  const ref = params.get('ref') || params.get('afiliado');
+  let a = lerAfiliado();
+  if (ref) {
+    const codigo = ref.trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9_-]{0,63}$/.test(codigo)) return;
+    const anterior = history.state?.aionRef;
+    const clique = anterior?.codigo === codigo ? anterior.clique : crypto.randomUUID();
+    const mesmoClique = a?.clique === clique;
+    if (!mesmoClique && appliedCoupon?.afiliado) { appliedCoupon = null; saveCoupon(); }
+    a = { codigo, expira: anterior?.codigo === codigo ? anterior.expira : Date.now() + 30 * 86400000, clique, pendente: mesmoClique ? a.pendente : true };
+    try {
+      history.replaceState({ ...history.state, aionRef: a }, '');
+      localStorage.setItem('aion_afiliado', JSON.stringify(a));
+    } catch { /* tracking não pode impedir compras */ }
+  }
+  if (!a || a.expira <= Date.now()) return;
+  try {
+    const r = await fetch(`/api/produtos?afiliado=${encodeURIComponent(a.codigo)}`, {
+      method: a.pendente ? 'POST' : 'GET',
+      ...(a.pendente ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clique: a.clique }) } : {}),
+      cache: 'no-store',
+    });
+    if (!r.ok) return;
+    const { afiliado } = await r.json();
+    // Outra aba/link pode ter substituído a atribuição enquanto aguardávamos.
+    if (lerAfiliado()?.clique !== a.clique) return;
+    if (!afiliado) { localStorage.removeItem('aion_afiliado'); return; }
+    if (a.pendente && afiliado.cupom && !b2bLogado()) {
+      appliedCoupon = { ...afiliado.cupom, influencer: null, afiliado: a.codigo };
+      saveCoupon();
+      renderCartUI();
+      renderCheckoutResumo();
+    }
+    a.pendente = false;
+    localStorage.setItem('aion_afiliado', JSON.stringify(a));
+  } catch { /* sem rede ou armazenamento: checkout segue normalmente */ }
+}
+
 async function aplicarCupom() {
   if (b2bLogado()) {
     showToast('🏷️ Cupom não vale junto com preço de lojista — sua tabela já está aplicada.', 4500);
@@ -1267,6 +1320,7 @@ async function enviarCheckout(event) {
         itens: cart,
         frete: selectedFrete,
         cupom: b2bLogado() ? null : appliedCoupon?.codigo || null,
+        afiliado: lerAfiliado()?.codigo || null,
         ga: gaIds(),
       }),
     });

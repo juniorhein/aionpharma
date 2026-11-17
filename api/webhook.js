@@ -13,6 +13,7 @@ import { alterarSituacaoPedido, gerarNotaFiscal } from './_lib/tiny.js';
 import { confirmarResgatePorPedido } from './_lib/cupons.js';
 import { aoPagamento } from './_lib/regua.js';
 import { enviarCompraGA4 } from './_lib/ga4.js';
+import { registrarPagamentoAfiliado } from './_lib/afiliados.js';
 
 async function emails(pagamento) {
   try {
@@ -44,6 +45,12 @@ export default async function handler(req, res) {
 
     if (!pedidoId) {
       return res.status(200).json({ ignored: 'sem external_reference' });
+    }
+
+    try {
+      await registrarPagamentoAfiliado(pagamento);
+    } catch (err) {
+      console.error('[/api/webhook] afiliado:', err.message);
     }
 
     if (status === 'approved') {

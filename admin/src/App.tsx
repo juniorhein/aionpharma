@@ -11,6 +11,7 @@ import InfluencersPage from './pages/InfluencersPage';
 import CouponStatsPage from './pages/CouponStatsPage';
 import B2BPage from './pages/B2BPage';
 import VitrinePage from './pages/VitrinePage';
+import AfiliadosPage from './pages/AfiliadosPage';
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -39,6 +40,7 @@ function AppRoutes() {
         <Route path="influencers" element={<InfluencersPage />} />
         <Route path="b2b" element={<B2BPage />} />
         <Route path="vitrine" element={<VitrinePage />} />
+        <Route path="afiliados" element={<AfiliadosPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

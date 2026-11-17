@@ -16,8 +16,9 @@ import b2b from '../_lib/admin-rotas/b2b.js';
 import vitrine from '../_lib/admin-rotas/vitrine.js';
 import vendas from '../_lib/admin-rotas/vendas.js';
 import envios from '../_lib/admin-rotas/envios.js';
+import afiliados from '../_lib/admin-rotas/afiliados.js';
 
-const ROTAS = { login, coupons, influencers, b2b, vitrine, vendas, envios };
+const ROTAS = { login, coupons, influencers, b2b, vitrine, vendas, envios, afiliados };
 
 // O passo de sincronização com o Tiny pode levar ~20 s; a rodada de envios, ~40 s.
 export const config = { maxDuration: 60 };
